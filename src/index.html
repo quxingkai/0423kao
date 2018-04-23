@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div class="wrap"></div>
+    <script src="js/libs/jquery-2.1.1.min.js"></script>
+    <script src="js/libs/handlebars-v4.0.11.js"></script>
+    <script type="text/x-handlebars-template" id="tpl">
+        {{#each this}}
+        <div class="tit"><span class="down-up">-{{name}}</span>
+            {{#each children}}
+            <dl class="two"><span class="down-up">-{{this.name}}</span>
+                 {{#each children}}
+                    <li class="two-cont">
+                        {{#if isDir}}<span class="down-up">-{{/if}}{{this.name}}</span>
+                            {{#if isDir}}
+                            <div>
+                                 {{#each children}}
+                                 <div class="three-up">
+                                     {{#if isDir}}<span class="down-up">-{{/if}}{{this.name}}</span>
+                                        {{#each children}}
+                                          <div class="four-up">{{name}}</div> 
+                                        {{/each}}
+                                 </div>
+                                 {{/each}}
+                            </div>
+                         {{/if}}
+                        </li>
+                {{/each}}
+                </dl>
+          {{/each}}
+        </div>        
+        {{/each}}
+    </script>
+    <script>
+            $.ajax({
+                url:"/info",
+                success:function(data){
+                    var data = JSON.parse(data);
+                    var source = $('#tpl').html();
+                    Handlebars.registerHelper('isBoolean',function(bool,options){
+                        if(bool){
+                            return options.fn(this);          
+                        }
+                    })
+                    var template = Handlebars.compile(source);
+                    var html = template(data);
+                    $('.wrap').html(html);
+
+                    $('.down-up').on('click',function(){
+
+                        if($(this).text().slice(0,1)==='-'){
+                            txt = $(this).text().slice(1);
+                            $(this).text('+'+txt);
+                            $(this).addClass('up');
+                            $(this).parent().children(':not(.up)').addClass('down');
+                        }else if($(this).text().slice(0,1)==='+'){
+                            txt = $(this).text().slice(1);
+                            $(this).text('-'+ txt);
+                            $(this).removeClass('up');
+                            $(this).parent().children(':not(.up)').removeClass('down');
+                        }
+                        
+                        // $(this).next().toggleClass('down');
+
+                    })
+                }
+            });
+       </script>
+</body>
+</html>
